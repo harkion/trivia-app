@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Timer from "../components/Timer";
 import { supabase } from "../lib/supabase";
@@ -20,6 +20,7 @@ export default function QuizPage() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category");
   const username = searchParams.get("user");
+  const hasAdvancedRef = useRef(false);
 
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [current, setCurrent] = useState(0);
@@ -97,6 +98,8 @@ export default function QuizPage() {
   useEffect(() => {
     if (!currentQuestion) return;
 
+    hasAdvancedRef.current = false;
+
     setTimeLeft(DEFAULT_TIME_PER_QUESTION);
     setSelectedIndex(null);
     setIsCorrect(null);
@@ -112,18 +115,25 @@ export default function QuizPage() {
   useEffect(() => {
     if (!currentQuestion) return;
     if (timeLeft > 0) return;
-    // Prevent multiple triggers
-    if (selectedIndex !== null) return;
+    if (hasAdvancedRef.current) return;
+
+    // Safety check to stop if user already answered !!***
+    if (selectedIndex !== null && selectedIndex !== -1) return;
+
+    hasAdvancedRef.current = true;
 
     setSelectedIndex(-1);
     setIsCorrect(false);
 
-    const timeout = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
+      setSelectedIndex(null);
+      setIsCorrect(null);
+      setTimeLeft(DEFAULT_TIME_PER_QUESTION);
       setCurrent((c) => c + 1);
     }, 700);
 
-    return () => clearTimeout(timeout);
-  }, [timeLeft, currentQuestion, selectedIndex]);
+    return () => clearTimeout(timeoutId);
+  }, [timeLeft, currentQuestion]);
 
   // When quiz ends, navigate to result page
   useEffect(() => {
