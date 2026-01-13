@@ -83,6 +83,10 @@ export default function Home() {
           ))}
         </div>
       )}
+  <br />
+
+      <Link href="/leaderboard" style={{ display: "inline-block", marginBottom: 16 }}> View Leaderboard → </Link>
+
     </main>
   );
 }
