@@ -13,13 +13,17 @@ export default function Home() {
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       setErrorMsg(null);
 
-      const { data, error } = await supabase.from("categories").select("*").order("name");
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
       if (error) {
         setErrorMsg(error.message);
         setCategories([]);
@@ -33,10 +37,23 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: 16 }}>
-      <h1 style={{ fontSize: 34, marginBottom: 8 }}>Speed Trivia</h1>
+      <h1 style={{ fontSize: 34, marginBottom: 8 }}>Quiz Craft</h1>
       <p style={{ opacity: 0.85, marginBottom: 18 }}>
         Pick a category. You get more points for faster answers.
       </p>
+
+      <input
+        type="text"
+        placeholder="Enter your name"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        style={{
+          padding: 10,
+          marginBottom: 16,
+          width: "100%",
+          borderRadius: 8,
+        }}
+      />
 
       {loading && <p>Loading categories...</p>}
       {errorMsg && <p>Supabase error: {errorMsg}</p>}
@@ -52,7 +69,7 @@ export default function Home() {
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              href={`/quiz?category=${cat.id}`}
+              href={`/quiz?category=${cat.id}&user=${encodeURIComponent(username)}`}
               style={{
                 padding: 16,
                 borderRadius: 16,
@@ -66,10 +83,6 @@ export default function Home() {
           ))}
         </div>
       )}
-
-      <div style={{ marginTop: 22, opacity: 0.75 }}>
-        <small>Tip: For MVP, add 3–5 questions per category in Supabase.</small>
-      </div>
     </main>
   );
 }

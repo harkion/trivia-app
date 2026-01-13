@@ -19,6 +19,7 @@ export default function QuizPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category");
+  const username = searchParams.get("user");
 
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [current, setCurrent] = useState(0);
@@ -29,26 +30,63 @@ export default function QuizPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const currentQuestion = useMemo(() => questions[current], [questions, current]);
+  const currentQuestion = useMemo(
+    () => questions[current],
+    [questions, current]
+  );
 
   const fetchQuestions = useCallback(async () => {
     setLoading(true);
     setErrorMsg(null);
 
-    // If user arrived without a category, just fetch any questions.
-    let query = supabase.from("questions").select("*");
-    if (categoryId) query = query.eq("category_id", categoryId);
+    try {
+      let data, error;
 
-    const { data, error } = await query.limit(10);
-    if (error) {
-      setErrorMsg(error.message);
-      setQuestions([]);
-    } else {
-      setQuestions((data as QuestionRow[]) ?? []);
+      if (categoryId) {
+        // OPTION A: If a category is selected, get RANDOM questions via RPC
+        const response = await supabase.rpc("get_random_questions", {
+          category_id_input: categoryId,
+          limit_count: 10,
+        });
+        data = response.data;
+        error = response.error;
+      } else {
+        // OPTION B: No category? Just fetch the first 10 normally (Fallback)
+        const response = await supabase.from("questions").select("*").limit(10);
+        data = response.data;
+        error = response.error;
+      }
+
+      if (error) {
+        console.error("Supabase error:", error);
+        setErrorMsg(error.message);
+        setQuestions([]);
+      } else {
+        // Set the questions
+        setQuestions((data as QuestionRow[]) ?? []);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }, [categoryId]);
+
+  // Function to finish the game and navigate to results page
+  const finishGame = useCallback(
+    async (finalScore: number) => {
+      if (username && categoryId) {
+        await supabase.from("scores").insert({
+          username,
+          score: finalScore,
+          category_id: categoryId,
+        });
+      }
+
+      router.replace(`/result?score=${finalScore}`);
+    },
+    [username, categoryId, router]
+  );
 
   // Initial fetch
   useEffect(() => {
@@ -90,11 +128,14 @@ export default function QuizPage() {
   // When quiz ends, navigate to result page
   useEffect(() => {
     if (loading) return;
-    if (questions.length === 0) return;
-    if (current < questions.length) return;
+    // Wait until questions are loaded before deciding if the game is over
+    if (questions.length === 0 && !errorMsg) return;
 
-    router.replace(`/result?score=${score}`);
-  }, [current, loading, questions.length, router, score]);
+    // If user finished the last question, go to results
+    if (questions.length > 0 && current >= questions.length) {
+      finishGame(score);
+    }
+  }, [current, loading, questions.length, router, score, errorMsg]);
 
   const handleAnswer = (index: number) => {
     if (!currentQuestion) return;
@@ -115,29 +156,53 @@ export default function QuizPage() {
     }, 700);
   };
 
-  if (loading) return <p>Loading questions...</p>;
-  if (errorMsg) return <p>Supabase error: {errorMsg}</p>;
+  if (loading)
+    return (
+      <p style={{ textAlign: "center", marginTop: 40 }}>Loading questions...</p>
+    );
+  if (errorMsg)
+    return (
+      <p style={{ textAlign: "center", marginTop: 40 }}>Error: {errorMsg}</p>
+    );
+
   if (!questions.length)
     return (
-      <div>
+      <div style={{ textAlign: "center", marginTop: 40 }}>
         <p>No questions found for this category yet.</p>
-        <button onClick={() => router.push("/")}>Go back</button>
+        <button
+          onClick={() => router.push("/")}
+          style={{ marginTop: 10, padding: "8px 16px", cursor: "pointer" }}
+        >
+          Go back
+        </button>
       </div>
     );
-  if (!currentQuestion) return <p>Loading...</p>;
+
+  if (!currentQuestion)
+    return <p style={{ textAlign: "center" }}>Preparing game...</p>;
 
   return (
     <main style={{ maxWidth: 720, margin: "0 auto", padding: 16 }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
         <Timer timeLeft={Math.max(timeLeft, 0)} />
         <div style={{ fontWeight: 600 }}>Score: {score}</div>
       </header>
 
       <section style={{ marginTop: 18 }}>
         <div style={{ opacity: 0.8, marginBottom: 8 }}>
-          Question {Math.min(current + 1, questions.length)} / {questions.length}
+          Question {Math.min(current + 1, questions.length)} /{" "}
+          {questions.length}
         </div>
-        <h2 style={{ fontSize: 22, lineHeight: 1.3 }}>{currentQuestion.question}</h2>
+        <h2 style={{ fontSize: 22, lineHeight: 1.3 }}>
+          {currentQuestion.question}
+        </h2>
 
         <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
           {currentQuestion.options.map((opt, i) => {
@@ -145,7 +210,6 @@ export default function QuizPage() {
             const shouldShow = selectedIndex !== null;
             const isTheCorrect = currentQuestion.correct_index === i;
 
-            // basic feedback styling without relying on CSS yet
             let border = "1px solid rgba(255,255,255,0.15)";
             let opacity = 1;
 
@@ -167,6 +231,8 @@ export default function QuizPage() {
                   border,
                   opacity,
                   cursor: selectedIndex === null ? "pointer" : "default",
+                  background: "transparent",
+                  color: "inherit",
                 }}
               >
                 {opt}
