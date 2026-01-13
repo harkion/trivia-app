@@ -63,8 +63,31 @@ export default function QuizPage() {
         setErrorMsg(error.message);
         setQuestions([]);
       } else {
-        // Set the questions
-        setQuestions((data as QuestionRow[]) ?? []);
+        const rawQuestions = (data as any[]) ?? [];
+
+        const processedQuestions = rawQuestions.map((q) => {
+          // Put all answers (correct + wrong) into one big list
+          const allOptions = [
+            q.correct_answer,
+            q.wrong_answer_1,
+            q.wrong_answer_2,
+            q.wrong_answer_3,
+          ].filter(Boolean); // removes any empty ones
+
+          // Shuffle that list
+          const shuffledOptions = shuffleArray(allOptions);
+
+          // Find where the correct answer ended up
+          const newCorrectIndex = shuffledOptions.indexOf(q.correct_answer);
+
+          return {
+            ...q,
+            options: shuffledOptions, // The new random order
+            correct_index: newCorrectIndex, // The new correct spot
+          };
+        });
+
+        setQuestions(processedQuestions);
       }
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -192,71 +215,111 @@ export default function QuizPage() {
     return <p style={{ textAlign: "center" }}>Preparing game...</p>;
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: 16 }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <Timer timeLeft={Math.max(timeLeft, 0)} />
-        <div style={{ fontWeight: 600 }}>Score: {score}</div>
-      </header>
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: 720 }}>
+        <header
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <Timer timeLeft={Math.max(timeLeft, 0)} />
+          <div style={{ fontWeight: 600 }}>Score: {score}</div>
+        </header>
 
-      <section style={{ marginTop: 18 }}>
-        <div style={{ opacity: 0.8, marginBottom: 8 }}>
-          Question {Math.min(current + 1, questions.length)} /{" "}
-          {questions.length}
-        </div>
-        <h2 style={{ fontSize: 22, lineHeight: 1.3 }}>
-          {currentQuestion.question}
-        </h2>
-
-        <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-          {currentQuestion.options.map((opt, i) => {
-            const isPicked = selectedIndex === i;
-            const shouldShow = selectedIndex !== null;
-            const isTheCorrect = currentQuestion.correct_index === i;
-
-            let border = "1px solid rgba(255,255,255,0.15)";
-            let opacity = 1;
-
-            if (shouldShow) {
-              if (isTheCorrect) border = "2px solid #22c55e";
-              if (isPicked && !isTheCorrect) border = "2px solid #ef4444";
-              if (!isPicked && !isTheCorrect) opacity = 0.75;
-            }
-
-            return (
-              <button
-                key={i}
-                onClick={() => handleAnswer(i)}
-                disabled={selectedIndex !== null}
-                style={{
-                  textAlign: "left",
-                  padding: "12px 14px",
-                  borderRadius: 12,
-                  border,
-                  opacity,
-                  cursor: selectedIndex === null ? "pointer" : "default",
-                  background: "transparent",
-                  color: "inherit",
-                }}
-              >
-                {opt}
-              </button>
-            );
-          })}
-        </div>
-
-        {selectedIndex !== null && (
-          <div style={{ marginTop: 14, fontWeight: 600 }}>
-            {isCorrect ? "✅ Correct!" : "❌ Wrong!"}
+        <section style={{ marginTop: 18 }}>
+          <div style={{ opacity: 0.8, marginBottom: 8 }}>
+            Question {Math.min(current + 1, questions.length)} /{" "}
+            {questions.length}
           </div>
-        )}
-      </section>
+          <h2 style={{ fontSize: 22, lineHeight: 1.3 }}>
+            {currentQuestion.question}
+          </h2>
+
+          {currentQuestion.image_url && (
+            <div
+              style={{
+                margin: "20px 0",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={currentQuestion.image_url}
+                alt="Quiz context"
+                style={{
+                  maxHeight: "300px",
+                  maxWidth: "100%",
+                  borderRadius: "16px",
+                  border: "2px solid rgba(255,255,255,0.1)",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+                }}
+              />
+            </div>
+          )}
+
+          <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+            {currentQuestion.options.map((opt, i) => {
+              const isPicked = selectedIndex === i;
+              const shouldShow = selectedIndex !== null;
+              const isTheCorrect = currentQuestion.correct_index === i;
+
+              let border = "1px solid rgba(255,255,255,0.15)";
+              let opacity = 1;
+
+              if (shouldShow) {
+                if (isTheCorrect) border = "2px solid #22c55e";
+                if (isPicked && !isTheCorrect) border = "2px solid #ef4444";
+                if (!isPicked && !isTheCorrect) opacity = 0.75;
+              }
+
+              return (
+                <button
+                  key={i}
+                  onClick={() => handleAnswer(i)}
+                  disabled={selectedIndex !== null}
+                  style={{
+                    textAlign: "left",
+                    padding: "12px 14px",
+                    borderRadius: 12,
+                    border,
+                    opacity,
+                    cursor: selectedIndex === null ? "pointer" : "default",
+                    background: "transparent",
+                    color: "inherit",
+                  }}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+
+          {selectedIndex !== null && (
+            <div style={{ marginTop: 14, fontWeight: 600 }}>
+              {isCorrect ? "✅ Correct!" : "❌ Wrong!"}
+            </div>
+          )}
+        </section>
+      </div>
     </main>
   );
+}
+function shuffleArray(array: any[]) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
