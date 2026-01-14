@@ -2,58 +2,110 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 
+type ScoreReaction = {
+title: string;
+subtitle?: string;
+};
+
+function getScoreReaction(score: number): ScoreReaction {
+if (score === 0) {
+    return {
+    title: "Better luck next time, twin 💀",
+    };
+}
+
+if (score < 300) {
+    return {
+    title: "NPC energy... locked out 🔒",
+    };
+}
+
+if (score < 600) {
+    return {
+    title: "Okay okay… not bad 👀",
+    subtitle: "Respectable. Could be better though.",
+    };
+}
+
+if (score < 800) {
+    return {
+    title: "You were cooking fr 🔥",
+    subtitle: "One more run and you'll dominate.",
+    };
+}
+
+if (score < 900) {
+    return {
+    title: "W Rizz.",
+    subtitle: "Absolute academic weapon 🧠",
+    };
+}
+
+if (score >= 1000) {
+    return {
+        title: "You just crushed it King 👑 GOAT status.",
+        subtitle: "Main character energy.",
+    };
+}
+
+return {
+    title: "YOU JUST CRUSHED IT, KING 👑",
+    subtitle: "Main character energy.",
+};
+
+}
+
+
 export default function ResultPage() {
-const params = useSearchParams();
+const searchParams = useSearchParams();
 const router = useRouter();
-const score = params.get("score");
+
+const score = Number(searchParams.get("score") ?? 0);
+const reaction = getScoreReaction(score);
 
 return (
     <main
     style={{
-        maxWidth: 600,
-        margin: "0 auto",
-        padding: 32,
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         textAlign: "center",
+        padding: 16,
     }}
     >
-    <h1 style={{ fontSize: 36, marginBottom: 8 }}>Game Over</h1>
+    <h1 style={{ fontSize: 40, marginBottom: 12 }}>Game Over</h1>
 
-    <p style={{ fontSize: 22, marginBottom: 20 }}>Your Score</p>
+    <p style={{ opacity: 0.7 }}>Your Score</p>
 
     <div
         style={{
-        fontSize: 48,
-        fontWeight: 800,
-        marginBottom: 32,
+        fontSize: 72,
+        fontWeight: 700,
+        margin: "12px 0 16px",
         }}
     >
         {score}
     </div>
 
-    <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-        <button
-        onClick={() => router.push("/")}
-        style={{
-            padding: "10px 18px",
-            borderRadius: 10,
-            cursor: "pointer",
-        }}
-        >
-        Home
-        </button>
+    <h2 style={{ marginBottom: 6 }}>{reaction.title}</h2>
 
-        <button onClick={() => router.push("/")}>Play Again</button>
+    {reaction.subtitle && (
+        <p style={{ opacity: 0.75, marginBottom: 24 }}>{reaction.subtitle}</p>
+    )}
 
-        <button
-        onClick={() => router.push("/leaderboard")}
+    <div
         style={{
-            padding: "10px 18px",
-            borderRadius: 10,
-            cursor: "pointer",
+        display: "flex",
+        gap: 24,
+        justifyContent: "center",
+        marginTop: 32,
         }}
-        >
-        Leaderboard
-        </button>
+    >
+        <button onClick={() => router.push("/")}>Home</button>
+        <button onClick={() => router.push("/quiz")}>Play Again</button>
+        <button onClick={() => router.push("/leaderboard")}>Leaderboard</button>
     </div>
     </main>
 );
