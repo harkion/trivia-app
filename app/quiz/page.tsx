@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 // import Timer from "../components/Timer"; -- REMOVED with TimerBar addition, still here if needed later
 import { supabase } from "../lib/supabase";
 import TimerBar from "../components/TimerBar";
+import { QRCodeCanvas } from "qrcode.react";
 
 type QuestionRow = {
   id: string;
@@ -32,8 +33,19 @@ export default function QuizPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const shareLink = () => {
-  navigator.clipboard.writeText(window.location.href);
-  alert("Multiplayer link copied! 🔗");
+    navigator.clipboard.writeText(window.location.href);
+    alert("Multiplayer link copied!");
+  };
+  const [showQR, setShowQR] = useState(false);
+
+  // Share button styling
+  const shareButtonStyle = {
+  padding: "6px 12px",
+  borderRadius: 10,
+  border: "1px solid rgba(255,255,255,0.2)",
+  background: "rgba(255,255,255,0.05)",
+  cursor: "pointer",
+  fontSize: 14,
 };
 
 
@@ -256,20 +268,29 @@ export default function QuizPage() {
           </div>
         </header>
 
-        <button
-          onClick={shareLink}
-          style={{
-            marginTop: 12,
-            padding: "6px 12px",
-            borderRadius: 10,
-            border: "1px solid rgba(255,255,255,0.2)",
-            background: "rgba(255,255,255,0.05)",
-            cursor: "pointer",
-            fontSize: 14,
-          }}
-        >
-          🔗 Share this quiz (multiplayer)
-        </button>
+        
+
+        <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+          <button onClick={shareLink} style={shareButtonStyle}>
+            Copy multiplayer link
+          </button>
+
+          <button onClick={() => setShowQR((v) => !v)} style={shareButtonStyle}>
+            Get QR Code
+          </button>
+        </div>
+
+        {showQR && (
+          <div style={{ marginTop: 12, textAlign: "center" }}>
+            <QRCodeCanvas
+              value={typeof window !== "undefined" ? window.location.href : ""}
+              size={120}
+            />
+            <p style={{ opacity: 0.7, fontSize: 13 }}>
+              Scan to play the same quiz
+            </p>
+          </div>
+        )}
 
         <section style={{ marginTop: 18 }}>
           <div style={{ opacity: 0.8, marginBottom: 8 }}>
@@ -341,7 +362,7 @@ export default function QuizPage() {
 
           {selectedIndex !== null && (
             <div style={{ marginTop: 14, fontWeight: 600 }}>
-              {isCorrect ? "✅ Correct!" : "❌ Wrong!"}
+              {isCorrect ? "🔥 Correct!" : "💀 Wrong!"}
             </div>
           )}
         </section>

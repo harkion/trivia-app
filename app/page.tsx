@@ -40,12 +40,12 @@ export default function Home() {
         setCategories((categoryData as CategoryRow[]) ?? []);
       }
 
-      // Fetch leaderboard (top 5 Top G's)
+      // Fetch leaderboard (top 10 Top G's)
       const { data: scoreData, error: scoreError } = await supabase
         .from("scores")
         .select("id, username, score")
         .order("score", { ascending: false })
-        .limit(5);
+        .limit(10);
 
       if (!scoreError) {
         setScores((scoreData as ScoreRow[]) ?? []);
