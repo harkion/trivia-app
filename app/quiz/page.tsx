@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Timer from "../components/Timer";
+// import Timer from "../components/Timer"; -- REMOVED with TimerBar addition, still here if needed later
 import { supabase } from "../lib/supabase";
+import TimerBar from "../components/TimerBar";
 
 type QuestionRow = {
   id: string;
@@ -228,13 +229,27 @@ export default function QuizPage() {
         <header
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            // justifyContent: "space-between",
             alignItems: "center",
-            gap: 12,
+            gap: 16,
+            marginBottom: 24,
           }}
         >
-          <Timer timeLeft={Math.max(timeLeft, 0)} />
-          <div style={{ fontWeight: 600 }}>Score: {score}</div>
+          
+          <TimerBar timeLeft={timeLeft} total={DEFAULT_TIME_PER_QUESTION} />
+
+          <div
+            style={{
+              marginLeft: "auto",
+              fontWeight: 700,
+              fontSize: 18,
+              padding: "6px 12px",
+              borderRadius: 10,
+              background: "rgba(255,255,255,0.08)",
+            }}
+          >
+            Score: {score}
+          </div>
         </header>
 
         <section style={{ marginTop: 18 }}>
