@@ -89,10 +89,20 @@ return (
         {score}
     </div>
 
-    <h2 style={{ marginBottom: 6 }}>{reaction.title}</h2>
+        <button
+        onClick={() => {
+        navigator.clipboard.writeText(window.location.origin + "/quiz" + window.location.search);
+        alert("Multiplayer link copied! 🔥");
+        }}
+    >
+        🔗 Challenge others with this quiz
+    </button>
+
+
+    <h2 style={{ marginBottom: 6, marginTop: 18 }}>{reaction.title}</h2>
 
     {reaction.subtitle && (
-        <p style={{ opacity: 0.75, marginBottom: 24 }}>{reaction.subtitle}</p>
+        <p style={{ opacity: 0.75, marginBottom: 24,}}>{reaction.subtitle}</p>
     )}
 
     <div

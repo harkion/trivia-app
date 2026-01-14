@@ -31,6 +31,11 @@ export default function QuizPage() {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const shareLink = () => {
+  navigator.clipboard.writeText(window.location.href);
+  alert("Multiplayer link copied! 🔗");
+};
+
 
   const currentQuestion = useMemo(
     () => questions[current],
@@ -235,7 +240,6 @@ export default function QuizPage() {
             marginBottom: 24,
           }}
         >
-          
           <TimerBar timeLeft={timeLeft} total={DEFAULT_TIME_PER_QUESTION} />
 
           <div
@@ -251,6 +255,21 @@ export default function QuizPage() {
             Score: {score}
           </div>
         </header>
+
+        <button
+          onClick={shareLink}
+          style={{
+            marginTop: 12,
+            padding: "6px 12px",
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.2)",
+            background: "rgba(255,255,255,0.05)",
+            cursor: "pointer",
+            fontSize: 14,
+          }}
+        >
+          🔗 Share this quiz (multiplayer)
+        </button>
 
         <section style={{ marginTop: 18 }}>
           <div style={{ opacity: 0.8, marginBottom: 8 }}>

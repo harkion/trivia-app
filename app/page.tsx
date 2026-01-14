@@ -56,7 +56,6 @@ export default function Home() {
         <p style={{ opacity: 0.85, marginBottom: 18 }}>
           Pick a category. → Lock in. → Speed = Aura.
         </p>
-
         <input
           type="text"
           placeholder="Enter your name"
@@ -79,10 +78,29 @@ export default function Home() {
         >
           💡 Enter a name to save your score & appear on the leaderboard
         </p>
-
+        {/* multiplayer guide */}
+        <div
+          style={{
+            marginTop: 16,
+            padding: "12px 16px",
+            borderRadius: 14,
+            border: "1px solid rgba(255,255,255,0.15)",
+            background: "rgba(255,255,255,0.04)",
+            maxWidth: 520,
+            marginInline: "auto",
+            fontSize: 14,
+            opacity: 0.9,
+          }}
+        >
+          <strong>How multiplayer works 👥</strong>
+          <p style={{ marginTop: 6, lineHeight: 1.5 }}>
+            Share a quiz link with friends. Everyone plays individually under
+            the same rules. Scores are compared on the leaderboard to see who
+            wins.
+          </p>
+        </div>
         {loading && <p>Loading categories...</p>}
         {errorMsg && <p>Supabase error: {errorMsg}</p>}
-
         {!loading && !errorMsg && (
           <div
             style={{
@@ -138,10 +156,9 @@ export default function Home() {
           </div>
         )}
         <br />
-
         <Link
           href="/leaderboard"
-          style={{ display: "inline-block", marginBottom: 16 }}
+          style={{ display: "inline-block", marginBottom: 16, marginTop: 24 }}
         >
           {" "}
           View Leaderboard →{" "}
