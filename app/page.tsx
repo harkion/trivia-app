@@ -9,8 +9,15 @@ type CategoryRow = {
   name: string;
 };
 
+type ScoreRow = {
+  id: string;
+  username: string;
+  score: number;
+};
+
 export default function Home() {
   const [categories, setCategories] = useState<CategoryRow[]>([]);
+  const [scores, setScores] = useState<ScoreRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [username, setUsername] = useState("");
@@ -20,15 +27,28 @@ export default function Home() {
       setLoading(true);
       setErrorMsg(null);
 
-      const { data, error } = await supabase
+      // Fetch categories
+      const { data: categoryData, error: categoryError } = await supabase
         .from("categories")
         .select("*")
         .order("name");
-      if (error) {
-        setErrorMsg(error.message);
+
+      if (categoryError) {
+        setErrorMsg(categoryError.message);
         setCategories([]);
       } else {
-        setCategories((data as CategoryRow[]) ?? []);
+        setCategories((categoryData as CategoryRow[]) ?? []);
+      }
+
+      // Fetch leaderboard (top 5 Top G's)
+      const { data: scoreData, error: scoreError } = await supabase
+        .from("scores")
+        .select("id, username, score")
+        .order("score", { ascending: false })
+        .limit(5);
+
+      if (!scoreError) {
+        setScores((scoreData as ScoreRow[]) ?? []);
       }
 
       setLoading(false);
@@ -99,6 +119,34 @@ export default function Home() {
             wins.
           </p>
         </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            overflowX: "auto",
+            marginTop: 19,
+            paddingBottom: 8,
+          }}
+        >
+          {scores.map((row, i) => (
+            <div
+              key={row.id}
+              style={{
+                minWidth: 160,
+                padding: 12,
+                borderRadius: 12,
+                border: "1px solid rgba(255,255,255,0.15)",
+                background: "rgba(255,255,255,0.04)",
+              }}
+            >
+              <div style={{ opacity: 0.7 }}>#{i + 1}</div>
+              <strong>{row.username}</strong>
+              <div>{row.score}</div>
+            </div>
+          ))}
+        </div>
+
         {loading && <p>Loading categories...</p>}
         {errorMsg && <p>Supabase error: {errorMsg}</p>}
         {!loading && !errorMsg && (
@@ -112,7 +160,7 @@ export default function Home() {
             <div
               className="category-grid"
               style={{
-                marginTop: 36,
+                marginTop: 30,
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
                 gap: 18,
@@ -156,13 +204,13 @@ export default function Home() {
           </div>
         )}
         <br />
-        <Link
+        {/* <Link
           href="/leaderboard"
           style={{ display: "inline-block", marginBottom: 16, marginTop: 24 }}
         >
           {" "}
           View Leaderboard →{" "}
-        </Link>
+        </Link> */}
       </div>
     </main>
   );
