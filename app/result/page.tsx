@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Suspense } from "react";
-import { supabase } from "../lib/supabase"; //
+import { supabase } from "../lib/supabase";
 
     type ScoreReaction = {
     title: string;
@@ -77,15 +77,16 @@ function ResultContent() {
     const score = Number(searchParams.get("score") ?? 0);
     const reaction = getScoreReaction(score);
 
-    const [name, setName] = useState(searchParams.get("user") ?? "");
+    const [username, setUsername] = useState("");
+    // const [name, setName] = useState(searchParams.get("user") ?? "");
     const [saved, setSaved] = useState(false);
     const [showQR, setShowQR] = useState(false);
 
 async function saveScore() {
-    if (!name.trim()) return;
+    if (!username.trim()) return;
 
     await supabase.from("scores").insert({
-    username: name,
+    username: username,
     score,
     });
 
@@ -119,30 +120,34 @@ return (
     </div>
 
     {!saved && (
-        <>
-        {!name && (
-            <>
-            <p style={{ opacity: 0.7 }}>
-                Enter your name to save your score
-            </p>
-            <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                style={{ padding: 8, borderRadius: 8 }}
-            />
-            </>
-        )}
+    <>
+        <p style={{ opacity: 0.7, marginTop: 12 }}>
+        Enter your name to save your score
+        </p>
+
+        <input
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Your name"
+        style={{
+            padding: 10,
+            borderRadius: 8,
+            marginTop: 6,
+            width: 220,
+            textAlign: "center",
+        }}
+        />
 
         <button
-            onClick={saveScore}
-            disabled={!name.trim()}
-            style={{ marginTop: 12 }}
+        onClick={saveScore}
+        disabled={!username.trim()}
+        style={{ marginTop: 10 }}
         >
-            Save Score
+        Save Score
         </button>
-        </>
-    )}
+    </>
+)}
+
 
     {saved && (
         <p style={{ marginTop: 12, opacity: 0.8 }}>

@@ -120,6 +120,17 @@ export default function Home() {
           </p>
         </div>
 
+        <p
+          style={{
+            marginTop: 12,
+            fontSize: 14,
+            opacity: 0.7,
+            marginBottom: 24,
+          }}
+        >
+          🏆 Leaderboard
+        </p>
+
         <div
           style={{
             display: "flex",
