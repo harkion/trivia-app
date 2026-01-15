@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Suspense } from "react";
+import { supabase } from "../lib/supabase"; //
 
     type ScoreReaction = {
     title: string;
@@ -72,10 +73,24 @@ export default function ResultPage() {
 function ResultContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const [showQR, setShowQR] = useState(false);
 
     const score = Number(searchParams.get("score") ?? 0);
     const reaction = getScoreReaction(score);
+
+    const [name, setName] = useState(searchParams.get("user") ?? "");
+    const [saved, setSaved] = useState(false);
+    const [showQR, setShowQR] = useState(false);
+
+async function saveScore() {
+    if (!name.trim()) return;
+
+    await supabase.from("scores").insert({
+    username: name,
+    score,
+    });
+
+    setSaved(true);
+}
 
 return (
     <main
@@ -102,6 +117,38 @@ return (
     >
         {score}
     </div>
+
+    {!saved && (
+        <>
+        {!name && (
+            <>
+            <p style={{ opacity: 0.7 }}>
+                Enter your name to save your score
+            </p>
+            <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                style={{ padding: 8, borderRadius: 8 }}
+            />
+            </>
+        )}
+
+        <button
+            onClick={saveScore}
+            disabled={!name.trim()}
+            style={{ marginTop: 12 }}
+        >
+            Save Score
+        </button>
+        </>
+    )}
+
+    {saved && (
+        <p style={{ marginTop: 12, opacity: 0.8 }}>
+        ✅ Score saved to leaderboard
+        </p>
+    )}
 
 {/* MULTIPLAYER ACTIONS */}
     <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
