@@ -13,6 +13,7 @@ type QuestionRow = {
   options: string[];
   correct_index: number;
   category_id: string | null;
+  image_url?: string | null;
 };
 
 const DEFAULT_TIME_PER_QUESTION = 10; // seconds
