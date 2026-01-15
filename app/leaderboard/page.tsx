@@ -5,27 +5,27 @@ import { supabase } from "../lib/supabase";
 import Link from "next/link";
 
 type ScoreRow = {
-id: string;
-username: string;
-score: number;
-category_id: string | null;
-created_at: string;
-categories?: { name: string };
+    id: string;
+    username: string;
+    score: number;
 };
 
 export default function LeaderboardPage() {
-const [scores, setScores] = useState<ScoreRow[]>([]);
-const [loading, setLoading] = useState(true);
+    const [scores, setScores] = useState<ScoreRow[]>([]);
+    const [loading, setLoading] = useState(true);
 
 useEffect(() => {
     (async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
         .from("scores")
-        .select("id, username, score, created_at, categories(name)")
+        .select("id, username, score")
         .order("score", { ascending: false })
         .limit(10);
 
-    setScores((data as ScoreRow[]) ?? []);
+    if (!error) {
+        setScores((data as ScoreRow[]) ?? []);
+    }
+
     setLoading(false);
     })();
 }, []);
@@ -45,7 +45,6 @@ return (
             <th>#</th>
             <th>Player</th>
             <th>Score</th>
-            <th>Category</th>
             </tr>
         </thead>
         <tbody>
@@ -57,16 +56,15 @@ return (
                 <td>{i + 1}</td>
                 <td>{row.username}</td>
                 <td>{row.score}</td>
-                <td>{row.categories?.name ?? "-"}</td>
             </tr>
             ))}
         </tbody>
         </table>
     )}
 
-        <div style={{ marginTop: 24 }}>
-            <Link href="/">← Back to Home</Link>
-        </div>
+    <div style={{ marginTop: 24 }}>
+        <Link href="/">← Back to Home</Link>
+    </div>
     </main>
 );
 }
