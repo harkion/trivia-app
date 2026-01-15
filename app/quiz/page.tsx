@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 // import Timer from "../components/Timer"; -- REMOVED with TimerBar addition, still here if needed later
 import { supabase } from "../lib/supabase";
@@ -19,6 +20,14 @@ type QuestionRow = {
 const DEFAULT_TIME_PER_QUESTION = 10; // seconds
 
 export default function QuizPage() {
+  return (
+    <Suspense fallback={<p style={{ textAlign: "center" }}>Loading quiz…</p>}>
+      <QuizContent />
+    </Suspense>
+  );
+}
+
+function QuizContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category");

@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { Suspense } from "react";
 
     type ScoreReaction = {
     title: string;
@@ -59,9 +60,16 @@ return {
     fontSize: 14,
     };
 
-
-
 export default function ResultPage() {
+    return (
+        <Suspense fallback={<p>Loading result…</p>}>
+        <ResultContent />
+        </Suspense>
+    );
+}
+
+
+function ResultContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [showQR, setShowQR] = useState(false);
