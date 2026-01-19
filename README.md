@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quiz Craft 🧠⚡
 
-## Getting Started
+Quiz Craft is a fast-paced, category-based trivia web application focused on speed, competition, and modern UX.  
+Players answer timed questions, earn points based on reaction speed, and compare results via an async multiplayer leaderboard.
 
-First, run the development server:
+🔗 Live demo: https://quiz-craft-self.vercel.app/
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎯 Project Goal
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The goal of Quiz Craft was to design and develop an engaging trivia experience that:
+- Feels competitive without requiring real-time multiplayer
+- Encourages replayability through scoring and leaderboards
+- Targets a Gen-Z audience through tone, visuals, and interaction patterns
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The project was built as part of a portfolio assignment with a strong focus on **UX, interaction design, and technical implementation**.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧠 Key Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Category-based quizzes**
+- **Timed questions with reverse countdown bar**
+- **Speed-based scoring system**
+- **Async multiplayer**
+      - Shareable quiz links
+      - QR code support for easy access
+- **Leaderboard system (Supabase)**
+- **Score-based end screen reactions**
+- **Responsive, minimal UI with visual feedback**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 👥 Multiplayer Explained (Async)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Quiz Craft uses **asynchronous multiplayer**, similar to:
+- Wordle
+- Daily trivia apps
+- Duolingo leagues
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+How it works:
+- Everyone plays individually
+- Same questions, same rules
+- Scores are compared on a shared leaderboard  
+No real-time interaction required.
+
+---
+
+## 🛠 Tech Stack
+
+- **Next.js (App Router)**
+- **React**
+- **TypeScript**
+- **Supabase** (database & API)
+- **Vercel** (deployment)
+- **qrcode.react** (QR code generation)
+
+---
+
+## 🧪 User Testing & Iteration
+
+Based on user and stakeholder feedback:
+- Added delay to show correct answers after wrong selections
+- Improved score visibility and reactions
+- Introduced QR codes for multiplayer access
+- Moved leaderboard highlights to the home screen
+- Improved clarity around saving scores and multiplayer rules
+
+---
+
+## 🚀 Future Improvements
+
+- Daily challenge mode
+- Per-category leaderboards
+- Player profiles & streaks
+- Animated transitions between questions
+
+---
+
+## 📸 Screenshots
+
+![Home screen](public/project-quizcraft.jpg)
+![Quiz question screen](public/quiz-question.jpg)
+![Result screen](public/result.jpg)
+![Leaderboard](public/leaderboard.jpg)
+![Poster / QR usage](public/poster-qr.jpg)
+
+
+---
+
+## 👤 Author
+
+Created by Fahri Can Genç  
